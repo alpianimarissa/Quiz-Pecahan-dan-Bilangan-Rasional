@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif: Bilangan Rasional & Pecahan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex { font-size: 1.05em; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-extrabold text-xl font-serif italic shadow-md shadow-indigo-200">
+                    Q
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-base md:text-lg leading-tight">Kuis Interaktif: Pecahan & Bilangan Rasional</h1>
+                    <p class="text-xs text-slate-500 font-medium">40 Soal Latihan Terstruktur</p>
+                </div>
+            </div>
+
+            <!-- Score Summary Badge -->
+            <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold">
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="block text-[10px] text-slate-400 uppercase">Terjawab</span>
+                    <span id="stat-answered" class="text-indigo-600 font-bold text-sm">0/40</span>
+                </div>
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="block text-[10px] text-emerald-500 uppercase">Benar</span>
+                    <span id="stat-correct" class="text-emerald-600 font-bold text-sm">0</span>
+                </div>
+                <div class="text-center px-2 border-r border-slate-200">
+                    <span class="block text-[10px] text-rose-500 uppercase">Salah</span>
+                    <span id="stat-wrong" class="text-rose-600 font-bold text-sm">0</span>
+                </div>
+                <div class="text-center pl-2">
+                    <span class="block text-[10px] text-slate-400 uppercase">Skor</span>
+                    <span id="stat-score" class="text-slate-800 font-extrabold text-sm">0%</span>
+                </div>
+            </div>
+
+            <button onclick="resetQuiz()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset Kuis</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Question Card & Controls (lg:col-span-8) -->
+        <section class="lg:col-span-8 flex flex-col space-y-4">
+
+            <!-- Category Filter Tabs -->
+            <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-1 text-xs font-medium">
+                <button onclick="filterCategory('all')" id="tab-all" class="tab-btn active px-3 py-1.5 rounded-lg font-semibold transition bg-indigo-600 text-white">
+                    Semua Soal (40)
+                </button>
+                <button onclick="filterCategory('senilai')" id="tab-senilai" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                    Pecahan Senilai (1-13)
+                </button>
+                <button onclick="filterCategory('operasi')" id="tab-operasi" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                    Operasi Biasa (14-27)
+                </button>
+                <button onclick="filterCategory('campuran')" id="tab-campuran" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                    Pecahan Campuran (28-40)
+                </button>
+            </div>
+
+            <!-- Question Display Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex-1 flex flex-col justify-between space-y-6">
+                <div>
+                    <!-- Question Header Info -->
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span id="q-number-badge" class="px-3 py-1 bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg">
+                                SOAL #1
+                            </span>
+                            <span id="q-category-tag" class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">
+                                Pecahan Senilai
+                            </span>
+                        </div>
+                        <span id="q-status-tag" class="text-xs font-semibold text-slate-400">
+                            Belum Dijawab
+                        </span>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="text-slate-800 font-semibold text-base md:text-lg leading-relaxed mb-6" id="q-text">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <!-- Options List -->
+                    <div class="space-y-3" id="q-options">
+                        <!-- Options rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Solution & Rationale Box (Shown after answering) -->
+                <div id="solution-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed transition-all">
+                    <div class="flex items-center space-x-2 font-bold mb-1" id="solution-header">
+                        <!-- Dynamic header icon + text -->
+                    </div>
+                    <div id="solution-text" class="text-slate-700 space-y-1">
+                        <!-- Dynamic solution detail -->
+                    </div>
+                </div>
+
+                <!-- Navigation Controls Footer -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center space-x-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left"></i>
+                        <span>Sebelumnya</span>
+                    </button>
+
+                    <div class="text-xs text-slate-400 font-medium hidden sm:block">
+                        Gunakan tombol panah &leftarrow; &rightarrow; pada keyboard untuk navigasi cepat
+                    </div>
+
+                    <button onclick="nextQuestion()" id="btn-next" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl transition flex items-center space-x-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <span>Berikutnya</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Navigation Grid & Status (lg:col-span-4) -->
+        <section class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 sticky top-20">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-grip text-indigo-600"></i>
+                        <span>Peta Navigasi Soal</span>
+                    </h3>
+                    <span class="text-xs text-slate-500 font-medium">40 Soal Total</span>
+                </div>
+
+                <!-- Legend Indicator -->
+                <div class="grid grid-cols-3 gap-2 text-[11px] text-slate-600 font-medium">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-3 h-3 bg-slate-100 border border-slate-300 rounded"></span>
+                        <span>Belum</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-3 h-3 bg-emerald-500 rounded"></span>
+                        <span>Benar</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-3 h-3 bg-rose-500 rounded"></span>
+                        <span>Salah</span>
+                    </div>
+                </div>
+
+                <!-- Grid Buttons Container -->
+                <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-5 gap-2 max-h-[380px] overflow-y-auto custom-scrollbar p-1">
+                    <!-- Grid numbers generated by JS -->
+                </div>
+
+                <div class="pt-2 text-center border-t border-slate-100">
+                    <p class="text-[11px] text-slate-400">
+                        * Jawaban tersimpan otomatis secara lokal di perangkat Anda.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+        Kuis Interaktif Bilangan Rasional &copy; 2026 - Dilengkapi Penyimpanan Otomatis
+    </footer>
+
+    <!-- SCRIPT APPLICATION -->
+    <script>
+        // 40 QUESTIONS DATASET WITH EQUAL & BALANCED OPTIONS (A, B, C, D)
+        const questionsData = [
+            // --- PECAHAN SENILAI (1 - 13) ---
+            {
+                id: 1,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Pecahan yang senilai dengan $\\frac{3}{5}$ adalah ...",
+                options: [
+                    "$\\frac{9}{15}$",
+                    "$\\frac{6}{12}$",
+                    "$\\frac{12}{18}$",
+                    "$\\frac{15}{20}$"
+                ],
+                correct: 0, // A
+                explanation: "Kalikan pembilang dan penyebut dengan angka $3$: $\\frac{3 \\times 3}{5 \\times 3} = \\frac{9}{15}$."
+            },
+            {
+                id: 2,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Bentuk paling sederhana dari pecahan $\\frac{24}{36}$ adalah ...",
+                options: [
+                    "$\\frac{4}{5}$",
+                    "$\\frac{2}{3}$",
+                    "$\\frac{3}{4}$",
+                    "$\\frac{5}{6}$"
+                ],
+                correct: 1, // B
+                explanation: "FPB dari $24$ dan $36$ adalah $12$. Bagi pembilang dan penyebut dengan $12$: $\\frac{24 \\div 12}{36 \\div 12} = \\frac{2}{3}$."
+            },
+            {
+                id: 3,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Jika $\\frac{4}{7} = \\frac{x}{28}$, maka nilai $x$ adalah ...",
+                options: [
+                    "12",
+                    "20",
+                    "16",
+                    "21"
+                ],
+                correct: 2, // C
+                explanation: "Penyebut dikalikan $4$ ($7 \\times 4 = 28$). Maka pembilang juga dikalikan $4$: $x = 4 \\times 4 = 16$."
+            },
+            {
+                id: 4,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Manakah di antara pasangan pecahan berikut yang <strong>tidak</strong> senilai?",
+                options: [
+                    "$\\frac{5}{8}$ dan $\\frac{15}{24}$",
+                    "$\\frac{7}{9}$ dan $\\frac{21}{27}$",
+                    "$\\frac{4}{10}$ dan $\\frac{12}{30}$",
+                    "$\\frac{3}{4}$ dan $\\frac{18}{28}$"
+                ],
+                correct: 3, // D
+                explanation: "$\\frac{3}{4} = \\frac{3 \\times 7}{4 \\times 7} = \\frac{21}{28} \\neq \\frac{18}{28}$. Sedangkan $\\frac{18}{28}$ sederhana menjadi $\\frac{9}{14}$."
+            },
+            {
+                id: 5,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "FPB yang digunakan untuk menyederhanakan pecahan $\\frac{42}{70}$ ke bentuk paling sederhana adalah ...",
+                options: [
+                    "14",
+                    "7",
+                    "21",
+                    "35"
+                ],
+                correct: 0, // A
+                explanation: "Faktor $42 = 1, 2, 3, 6, 7, 14, 21, 42$ dan $70 = 1, 2, 5, 7, 10, 14, 35, 70$. FPB terbesar keduanya adalah $14$, sehingga $\\frac{42 \\div 14}{70 \\div 14} = \\frac{3}{5}$."
+            },
+            {
+                id: 6,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Pecahan $\\frac{a}{45}$ senilai dengan $\\frac{2}{3}$. Nilai $a$ adalah ...",
+                options: [
+                    "25",
+                    "30",
+                    "15",
+                    "35"
+                ],
+                correct: 1, // B
+                explanation: "Dari penyebut: $3 \\times 15 = 45$. Maka pembilang $a = 2 \\times 15 = 30$."
+            },
+            {
+                id: 7,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Bentuk paling sederhana dari $\\frac{54}{90}$ adalah ...",
+                options: [
+                    "$\\frac{4}{5}$",
+                    "$\\frac{5}{6}$",
+                    "$\\frac{3}{5}$",
+                    "$\\frac{2}{3}$"
+                ],
+                correct: 2, // C
+                explanation: "FPB dari $54$ dan $90$ adalah $18$. Bagi kedua angka dengan $18$: $\\frac{54 \\div 18}{90 \\div 18} = \\frac{3}{5}$."
+            },
+            {
+                id: 8,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Pecahan mana yang bernilai sama dengan $\\frac{8}{12}$?",
+                options: [
+                    "$\\frac{14}{20}$",
+                    "$\\frac{12}{16}$",
+                    "$\\frac{16}{20}$",
+                    "$\\frac{10}{15}$"
+                ],
+                correct: 3, // D
+                explanation: "$\\frac{8}{12}$ disederhanakan menjadi $\\frac{2}{3}$. Pecahan $\\frac{10}{15}$ jika dibagi $5$ juga menjadi $\\frac{2}{3}$."
+            },
+            {
+                id: 9,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Nilai $n$ pada persamaan pecahan senilai $\\frac{18}{n} = \\frac{3}{4}$ adalah ...",
+                options: [
+                    "20",
+                    "28",
+                    "16",
+                    "24"
+                ],
+                correct: 3, // D
+                explanation: "Pembilang $3 \\times 6 = 18$. Maka penyebut $n = 4 \\times 6 = 24$."
+            },
+            {
+                id: 10,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Jika pecahan $\\frac{32}{48}$ disederhanakan dengan membagi pembilang dan penyebut dengan $16$, maka hasilnya adalah ...",
+                options: [
+                    "$\\frac{1}{2}$",
+                    "$\\frac{2}{3}$",
+                    "$\\frac{3}{4}$",
+                    "$\\frac{4}{5}$"
+                ],
+                correct: 1, // B
+                explanation: "$\\frac{32 \\div 16}{48 \\div 16} = \\frac{2}{3}$."
+            },
+            {
+                id: 11,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Manakah dari pecahan berikut yang sudah dalam bentuk paling sederhana (tidak dapat dibagi lagi)?",
+                options: [
+                    "$\\frac{15}{25}$",
+                    "$\\frac{14}{21}$",
+                    "$\\frac{11}{17}$",
+                    "$\\frac{18}{27}$"
+                ],
+                correct: 2, // C
+                explanation: "$11$ dan $17$ adalah bilangan prima relatif (FPB = 1), sehingga $\\frac{11}{17}$ sudah paling sederhana."
+            },
+            {
+                id: 12,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Tentukan pecahan senilai dari $\\frac{9}{12}$ yang memiliki penyebut $36$!",
+                options: [
+                    "$\\frac{27}{36}$",
+                    "$\\frac{24}{36}$",
+                    "$\\frac{28}{36}$",
+                    "$\\frac{30}{36}$"
+                ],
+                correct: 0, // A
+                explanation: "Ubah penyebut $12 \\times 3 = 36$. Kalikan juga pembilang: $9 \\times 3 = 27$, jadi $\\frac{27}{36}$."
+            },
+            {
+                id: 13,
+                category: "senilai",
+                categoryLabel: "Pecahan Senilai",
+                question: "Pecahan $\\frac{75}{100}$ jika disederhanakan ke bentuk paling sederhana menjadi ...",
+                options: [
+                    "$\\frac{3}{4}$",
+                    "$\\frac{4}{5}$",
+                    "$\\frac{2}{3}$",
+                    "$\\frac{1}{2}$"
+                ],
+                correct: 0, // A
+                explanation: "Bagi pembilang dan penyebut dengan FPB-nya yaitu $25$: $\\frac{75 \\div 25}{100 \\div 25} = \\frac{3}{4}$."
+            },
+
+            // --- OPERASI PECAHAN BIASA (14 - 27) ---
+            {
+                id: 14,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil penjumlahan dari $\\frac{2}{7} + \\frac{3}{7}$ adalah ...",
+                options: [
+                    "$\\frac{6}{7}$",
+                    "$\\frac{5}{14}$",
+                    "$\\frac{5}{7}$",
+                    "$\\frac{6}{14}$"
+                ],
+                correct: 2, // C
+                explanation: "Karena penyebut sudah sama ($7$), langsung jumlahkan pembilang: $\\frac{2+3}{7} = \\frac{5}{7}$."
+            },
+            {
+                id: 15,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil dari $\\frac{1}{4} + \\frac{2}{5}$ adalah ...",
+                options: [
+                    "$\\frac{3}{9}$",
+                    "$\\frac{7}{20}$",
+                    "$\\frac{3}{20}$",
+                    "$\\frac{13}{20}$"
+                ],
+                correct: 3, // D
+                explanation: "KPK dari $4$ dan $5$ adalah $20$. Ubah penyebut: $\\frac{5}{20} + \\frac{8}{20} = \\frac{13}{20}$."
+            },
+            {
+                id: 16,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil pengurangan $\\frac{5}{6} - \\frac{1}{3}$ adalah ...",
+                options: [
+                    "$\\frac{4}{3}$",
+                    "$\\frac{1}{2}$",
+                    "$\\frac{1}{3}$",
+                    "$\\frac{2}{3}$"
+                ],
+                correct: 1, // B
+                explanation: "KPK dari $6$ dan $3$ adalah $6$. Ubah $\\frac{1}{3} = \\frac{2}{6}$. Maka $\\frac{5}{6} - \\frac{2}{6} = \\frac{3}{6} = \\frac{1}{2}$."
+            },
+            {
+                id: 17,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil perkalian pecahan $\\frac{3}{4} \\times \\frac{2}{5}$ adalah ...",
+                options: [
+                    "$\\frac{5}{9}$",
+                    "$\\frac{3}{10}$",
+                    "$\\frac{6}{15}$",
+                    "$\\frac{1}{2}$"
+                ],
+                correct: 1, // B
+                explanation: "Kalikan pembilang dengan pembilang dan penyebut dengan penyebut: $\\frac{3 \\times 2}{4 \\times 5} = \\frac{6}{20} = \\frac{3}{10}$."
+            },
+            {
+                id: 18,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil pembagian $\\frac{4}{5} \\div \\frac{2}{3}$ adalah ...",
+                options: [
+                    "$\\frac{8}{15}$",
+                    "$\\frac{5}{6}$",
+                    "$\\frac{2}{5}$",
+                    "$\\frac{6}{5}$"
+                ],
+                correct: 3, // D
+                explanation: "Ubah pembagian menjadi perkalian dengan membalikkan pecahan kedua: $\\frac{4}{5} \\times \\frac{3}{2} = \\frac{12}{10} = \\frac{6}{5}$."
+            },
+            {
+                id: 19,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Nilai dari $\\frac{7}{10} - \\frac{2}{5}$ adalah ...",
+                options: [
+                    "$\\frac{1}{2}$",
+                    "$\\frac{3}{10}$",
+                    "$\\frac{5}{5}$",
+                    "$\\frac{1}{5}$"
+                ],
+                correct: 1, // B
+                explanation: "Samakan penyebut ke $10$: $\\frac{7}{10} - \\frac{4}{10} = \\frac{3}{10}$."
+            },
+            {
+                id: 20,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Nilai dari $\\frac{5}{8} + \\frac{1}{6}$ adalah ...",
+                options: [
+                    "$\\frac{6}{14}$",
+                    "$\\frac{11}{24}$",
+                    "$\\frac{19}{24}$",
+                    "$\\frac{7}{24}$"
+                ],
+                correct: 2, // C
+                explanation: "KPK dari $8$ dan $6$ adalah $24$. Ubah pecahan: $\\frac{15}{24} + \\frac{4}{24} = \\frac{19}{24}$."
+            },
+            {
+                id: 21,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil dari $\\frac{4}{9} \\times \\frac{3}{8}$ adalah ...",
+                options: [
+                    "$\\frac{1}{6}$",
+                    "$\\frac{2}{9}$",
+                    "$\\frac{1}{4}$",
+                    "$\\frac{7}{17}$"
+                ],
+                correct: 0, // A
+                explanation: "Gunakan penyederhanaan silang (4 & 8 dibagi 4, 3 & 9 dibagi 3): $\\frac{1}{3} \\times \\frac{1}{2} = \\frac{1}{6}$."
+            },
+            {
+                id: 22,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil dari $\\frac{3}{10} \\div \\frac{9}{20}$ adalah ...",
+                options: [
+                    "$\\frac{2}{3}$",
+                    "$\\frac{27}{200}$",
+                    "$\\frac{3}{2}$",
+                    "$\\frac{1}{3}$"
+                ],
+                correct: 0, // A
+                explanation: "Balik pecahan kedua lalu kalikan: $\\frac{3}{10} \\times \\frac{20}{9} = \\frac{3 \\times 20}{10 \\times 9} = \\frac{60}{90} = \\frac{2}{3}$."
+            },
+            {
+                id: 23,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Ibu memiliki $\\frac{3}{4}$ kg gula, kemudian membeli lagi $\\frac{1}{2}$ kg. Total gula Ibu sekarang adalah ... kg.",
+                options: [
+                    "$\\frac{4}{6}$",
+                    "$\\frac{5}{4}$",
+                    "$\\frac{1}{4}$",
+                    "$\\frac{3}{8}$"
+                ],
+                correct: 1, // B
+                explanation: "Samakan penyebut ke $4$: $\\frac{3}{4} + \\frac{2}{4} = \\frac{5}{4}$ kg."
+            },
+            {
+                id: 24,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Sebuah tali panjangnya $\\frac{7}{8}$ meter dipotong sepanjang $\\frac{1}{4}$ meter. Sisa panjang tali adalah ... meter.",
+                options: [
+                    "$\\frac{3}{8}$",
+                    "$\\frac{6}{4}$",
+                    "$\\frac{5}{8}$",
+                    "$\\frac{1}{2}$"
+                ],
+                correct: 2, // C
+                explanation: "Samakan penyebut ke $8$: $\\frac{7}{8} - \\frac{2}{8} = \\frac{5}{8}$ meter."
+            },
+            {
+                id: 25,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil dari $\\frac{2}{3} \\times \\frac{3}{4} \\times \\frac{4}{5}$ adalah ...",
+                options: [
+                    "$\\frac{1}{5}$",
+                    "$\\frac{3}{5}$",
+                    "$\\frac{1}{2}$",
+                    "$\\frac{2}{5}$"
+                ],
+                correct: 3, // D
+                explanation: "Coret angka $3$ dan $4$ yang saling membagi di pembilang dan penyebut: $\\frac{2}{5}$."
+            },
+            {
+                id: 26,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Hasil dari $\\left(\\frac{1}{2} + \\frac{1}{3}\\right) \\times \\frac{6}{5}$ adalah ...",
+                options: [
+                    "$\\frac{1}{2}$",
+                    "$\\frac{2}{3}$",
+                    "$1$",
+                    "$\\frac{5}{6}$"
+                ],
+                correct: 2, // C
+                explanation: "Hitung dalam kurung dahulu: $\\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}$. Lalu kalikan: $\\frac{5}{6} \\times \\frac{6}{5} = 1$."
+            },
+            {
+                id: 27,
+                category: "operasi",
+                categoryLabel: "Operasi Pecahan Biasa",
+                question: "Sebuah botol berisi $\\frac{2}{3}$ liter air. Air tersebut dituangkan ke gelas berukuran $\\frac{1}{6}$ liter hingga penuh. Berapa gelas yang dapat terisi penuh?",
+                options: [
+                    "3 gelas",
+                    "5 gelas",
+                    "2 gelas",
+                    "4 gelas"
+                ],
+                correct: 3, // D
+                explanation: "Bagi volume total dengan kapasitas gelas: $\\frac{2}{3} \\div \\frac{1}{6} = \\frac{2}{3} \\times 6 = \\frac{12}{3} = 4$ gelas."
+            },
+
+            // --- PENGENALAN PECAHAN CAMPURAN (28 - 40) ---
+            {
+                id: 28,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Bentuk pecahan campuran dari $\\frac{11}{4}$ adalah ...",
+                options: [
+                    "$2\\frac{3}{4}$",
+                    "$2\\frac{1}{4}$",
+                    "$3\\frac{1}{4}$",
+                    "$2\\frac{1}{2}$"
+                ],
+                correct: 0, // A
+                explanation: "$11 \\div 4 = 2$ sisa $3$. Maka ditulis sebagai $2\\frac{3}{4}$."
+            },
+            {
+                id: 29,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Bentuk pecahan biasa dari $3\\frac{2}{5}$ adalah ...",
+                options: [
+                    "$\\frac{13}{5}$",
+                    "$\\frac{17}{5}$",
+                    "$\\frac{11}{5}$",
+                    "$\\frac{15}{2}$"
+                ],
+                correct: 1, // B
+                explanation: "Gunakan rumus $\\frac{(a \\times c) + b}{c} = \\frac{(3 \\times 5) + 2}{5} = \\frac{17}{5}$."
+            },
+            {
+                id: 30,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Manakah pecahan di bawah ini yang dapat diubah menjadi pecahan campuran?",
+                options: [
+                    "$\\frac{3}{7}$",
+                    "$\\frac{5}{8}$",
+                    "$\\frac{13}{9}$",
+                    "$\\frac{6}{11}$"
+                ],
+                correct: 2, // C
+                explanation: "Hanya pecahan tidak sejati (<em>improper fraction</em>) di mana pembilang > penyebut yang bisa diubah ke pecahan campuran. Pada $\\frac{13}{9}$, $13 > 9$."
+            },
+            {
+                id: 31,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Pecahan tidak sejati $\\frac{23}{6}$ jika diubah ke bentuk pecahan campuran menjadi ...",
+                options: [
+                    "$3\\frac{5}{6}$",
+                    "$4\\frac{1}{6}$",
+                    "$3\\frac{1}{6}$",
+                    "$3\\frac{2}{3}$"
+                ],
+                correct: 0, // A
+                explanation: "$23 \\div 6 = 3$ sisa $5$. Ditulis sebagai $3\\frac{5}{6}$."
+            },
+            {
+                id: 32,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Pecahan campuran $4\\frac{3}{8}$ senilai dengan pecahan biasa ...",
+                options: [
+                    "$\\frac{27}{8}$",
+                    "$\\frac{35}{8}$",
+                    "$\\frac{32}{8}$",
+                    "$\\frac{31}{8}$"
+                ],
+                correct: 1, // B
+                explanation: "$\\frac{(4 \\times 8) + 3}{8} = \\frac{32 + 3}{8} = \\frac{35}{8}$."
+            },
+            {
+                id: 33,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Hasil penjumlahan $1\\frac{1}{3} + 2\\frac{1}{2}$ adalah ...",
+                options: [
+                    "$3\\frac{2}{5}$",
+                    "$3\\frac{1}{6}$",
+                    "$4\\frac{1}{6}$",
+                    "$3\\frac{5}{6}$"
+                ],
+                correct: 3, // D
+                explanation: "Ubah ke pecahan biasa: $\\frac{4}{3} + \\frac{5}{2} = \\frac{8}{6} + \\frac{15}{6} = \\frac{23}{6} = 3\\frac{5}{6}$."
+            },
+            {
+                id: 34,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Hasil pengurangan $3\\frac{3}{4} - 1\\frac{1}{2}$ adalah ...",
+                options: [
+                    "$2\\frac{1}{4}$",
+                    "$2\\frac{1}{2}$",
+                    "$1\\frac{3}{4}$",
+                    "$2\\frac{3}{4}$"
+                ],
+                correct: 0, // A
+                explanation: "Kurangi bagian bulat dan pecahan: $(3-1) + (\\frac{3}{4} - \\frac{2}{4}) = 2 + \\frac{1}{4} = 2\\frac{1}{4}$."
+            },
+            {
+                id: 35,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Pecahan biasa dari $5\\frac{4}{7}$ adalah ...",
+                options: [
+                    "$\\frac{35}{7}$",
+                    "$\\frac{27}{7}$",
+                    "$\\frac{39}{7}$",
+                    "$\\frac{33}{7}$"
+                ],
+                correct: 2, // C
+                explanation: "$\\frac{(5 \\times 7) + 4}{7} = \\frac{35 + 4}{7} = \\frac{39}{7}$."
+            },
+            {
+                id: 36,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Apabila $\\frac{29}{4}$ diubah menjadi pecahan campuran $a\\frac{b}{c}$, maka nilai $a + b + c$ adalah ...",
+                options: [
+                    "11",
+                    "12",
+                    "13",
+                    "14"
+                ],
+                correct: 1, // B
+                explanation: "$\\frac{29}{4} = 7\\frac{1}{4}$, sehingga $a=7, b=1, c=4$. Nilai $a + b + c = 7 + 1 + 4 = 12$."
+            },
+            {
+                id: 37,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Hasil dari $2\\frac{1}{4} \\times 1\\frac{1}{3}$ adalah ...",
+                options: [
+                    "$2\\frac{1}{12}$",
+                    "$3\\frac{1}{3}$",
+                    "$2\\frac{3}{4}$",
+                    "$3$"
+                ],
+                correct: 3, // D
+                explanation: "Ubah dulu ke pecahan biasa: $\\frac{9}{4} \\times \\frac{4}{3} = \\frac{36}{12} = 3$."
+            },
+            {
+                id: 38,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Seutas tali panjangnya $5\\frac{1}{2}$ meter dipotong sepanjang $2\\frac{1}{4}$ meter. Sisa tali tersebut adalah ... meter.",
+                options: [
+                    "$3\\frac{1}{4}$",
+                    "$3\\frac{1}{2}$",
+                    "$2\\frac{3}{4}$",
+                    "$3\\frac{3}{4}$"
+                ],
+                correct: 0, // A
+                explanation: "$5\\frac{2}{4} - 2\\frac{1}{4} = 3\\frac{1}{4}$ meter."
+            },
+            {
+                id: 39,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Pecahan campuran yang nilainya paling besar di bawah ini adalah ...",
+                options: [
+                    "$2\\frac{7}{8}$",
+                    "$3\\frac{1}{5}$",
+                    "$3\\frac{1}{2}$",
+                    "$3\\frac{3}{8}$"
+                ],
+                correct: 2, // C
+                explanation: "Bandingkan desimalnya: $3\\frac{1}{5} = 3.2$, $3\\frac{3}{8} = 3.375$, dan $3\\frac{1}{2} = 3.5$. Maka $3\\frac{1}{2}$ adalah yang terbesar."
+            },
+            {
+                id: 40,
+                category: "campuran",
+                categoryLabel: "Pecahan Campuran",
+                question: "Sebuah resep kue membutuhkan $2\\frac{1}{2}$ cangkir tepung. Jika Budi ingin membuat 3 kali lipat resep tersebut, berapa cangkir tepung yang dibutuhkan?",
+                options: [
+                    "$6\\frac{1}{2}$ cangkir",
+                    "$7\\frac{1}{2}$ cangkir",
+                    "$8$ cangkir",
+                    "$7\\frac{1}{4}$ cangkir"
+                ],
+                correct: 1, // B
+                explanation: "Kalikan: $3 \\times 2\\frac{1}{2} = 3 \\times \\frac{5}{2} = \\frac{15}{2} = 7\\frac{1}{2}$ cangkir tepung."
+            }
+        ];
+
+        // STATE MANAGEMENT WITH LOCALSTORAGE PERSISTENCE
+        const STORAGE_KEY = "quiz_bilangan_rasional_v1";
+        
+        let currentQuestionIndex = 0;
+        let activeCategoryFilter = "all";
+        
+        // User state object
+        let userState = {
+            answers: {} // { questionId: selectedOptionIndex }
+        };
+
+        // Load saved state from LocalStorage
+        function loadSavedState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    userState = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error("Gagal memuat penyimpanan lokal", e);
+            }
+        }
+
+        // Save state to LocalStorage
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
+            } catch (e) {
+                console.error("Gagal menyimpan ke penyimpanan lokal", e);
+            }
+        }
+
+        // Initialize App
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSavedState();
+            renderQuestionGrid();
+            renderQuestionCard();
+            updateStats();
+
+            // Keyboard shortcut listener
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "ArrowLeft") prevQuestion();
+                if (e.key === "ArrowRight") nextQuestion();
+            });
+        });
+
+        // Filter Questions List
+        function getFilteredQuestions() {
+            if (activeCategoryFilter === "all") return questionsData;
+            return questionsData.filter(q => q.category === activeCategoryFilter);
+        }
+
+        // Filter Category Tab Handler
+        function filterCategory(cat) {
+            activeCategoryFilter = cat;
+            
+            // Update Tab UI
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.remove("bg-indigo-600", "text-white", "font-semibold");
+                btn.classList.add("text-slate-600");
+            });
+
+            const activeBtn = document.getElementById(`tab-${cat}`);
+            if (activeBtn) {
+                activeBtn.classList.add("bg-indigo-600", "text-white", "font-semibold");
+                activeBtn.classList.remove("text-slate-600");
+            }
+
+            currentQuestionIndex = 0;
+            renderQuestionGrid();
+            renderQuestionCard();
+        }
+
+        // Render Question Grid Buttons
+        function renderQuestionGrid() {
+            const gridContainer = document.getElementById("question-grid");
+            gridContainer.innerHTML = "";
+
+            const filtered = getFilteredQuestions();
+
+            filtered.forEach((q, idx) => {
+                const isAnswered = userState.answers.hasOwnProperty(q.id);
+                const isCorrect = isAnswered && userState.answers[q.id] === q.correct;
+                const isCurrent = idx === currentQuestionIndex;
+
+                let btnClass = "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+                
+                if (isAnswered) {
+                    if (isCorrect) {
+                        btnClass = "bg-emerald-500 text-white border-emerald-600 font-bold";
+                    } else {
+                        btnClass = "bg-rose-500 text-white border-rose-600 font-bold";
+                    }
+                }
+
+                if (isCurrent) {
+                    btnClass += " ring-2 ring-indigo-600 ring-offset-2";
+                }
+
+                const btn = document.createElement("button");
+                btn.className = `w-10 h-10 rounded-xl text-xs font-semibold flex items-center justify-center border transition shadow-sm ${btnClass}`;
+                btn.innerText = q.id;
+                btn.onclick = () => {
+                    currentQuestionIndex = idx;
+                    renderQuestionGrid();
+                    renderQuestionCard();
+                };
+
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // Render Current Question Card
+        function renderQuestionCard() {
+            const filtered = getFilteredQuestions();
+            if (filtered.length === 0) return;
+
+            const q = filtered[currentQuestionIndex];
+            const isAnswered = userState.answers.hasOwnProperty(q.id);
+            const userChoice = userState.answers[q.id];
+
+            // Header tags
+            document.getElementById("q-number-badge").innerText = `SOAL #${q.id}`;
+            document.getElementById("q-category-tag").innerText = q.categoryLabel;
+
+            const statusTag = document.getElementById("q-status-tag");
+            if (isAnswered) {
+                statusTag.innerText = userChoice === q.correct ? "✓ Dijawab Benar" : "✗ Dijawab Salah";
+                statusTag.className = userChoice === q.correct ? "text-xs font-bold text-emerald-600" : "text-xs font-bold text-rose-600";
+            } else {
+                statusTag.innerText = "Belum Dijawab";
+                statusTag.className = "text-xs font-semibold text-slate-400";
+            }
+
+            // Question Text
+            document.getElementById("q-text").innerHTML = q.question;
+
+            // Render Options
+            const optionsContainer = document.getElementById("q-options");
+            optionsContainer.innerHTML = "";
+
+            const labels = ["A", "B", "C", "D"];
+
+            q.options.forEach((optText, optIdx) => {
+                const isSelected = isAnswered && userChoice === optIdx;
+                const isCorrectOpt = optIdx === q.correct;
+
+                let optClass = "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 text-slate-700 bg-white";
+                let badgeClass = "bg-slate-100 text-slate-600 border-slate-200";
+
+                if (isAnswered) {
+                    if (isCorrectOpt) {
+                        optClass = "border-emerald-500 bg-emerald-50 text-emerald-900 font-medium";
+                        badgeClass = "bg-emerald-500 text-white border-emerald-600 font-bold";
+                    } else if (isSelected) {
+                        optClass = "border-rose-500 bg-rose-50 text-rose-900 font-medium";
+                        badgeClass = "bg-rose-500 text-white border-rose-600 font-bold";
+                    } else {
+                        optClass = "border-slate-200 opacity-60 bg-slate-50 text-slate-500";
+                    }
+                }
+
+                const optBtn = document.createElement("button");
+                optBtn.className = `w-full p-3.5 rounded-xl border text-left text-sm flex items-start space-x-3 transition shadow-sm ${optClass}`;
+                optBtn.innerHTML = `
+                    <span class="w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center border shrink-0 mt-0.5 ${badgeClass}">
+                        ${labels[optIdx]}
+                    </span>
+                    <span class="flex-1 pt-0.5">${optText}</span>
+                `;
+
+                optBtn.onclick = () => selectOption(q.id, optIdx);
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Render Solution Box if Answered
+            const solutionBox = document.getElementById("solution-box");
+            if (isAnswered) {
+                solutionBox.classList.remove("hidden");
+                const isRight = userChoice === q.correct;
+
+                if (isRight) {
+                    solutionBox.className = "p-4 rounded-xl border bg-emerald-50 border-emerald-200 text-xs leading-relaxed";
+                    document.getElementById("solution-header").className = "flex items-center space-x-2 font-bold mb-1 text-emerald-800";
+                    document.getElementById("solution-header").innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i><span>Jawaban Anda Benar!</span>`;
+                } else {
+                    solutionBox.className = "p-4 rounded-xl border bg-rose-50 border-rose-200 text-xs leading-relaxed";
+                    document.getElementById("solution-header").className = "flex items-center space-x-2 font-bold mb-1 text-rose-800";
+                    document.getElementById("solution-header").innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i><span>Jawaban Kurang Tepat! (Jawaban Benar: Opsi ${labels[q.correct]})</span>`;
+                }
+
+                document.getElementById("solution-text").innerHTML = `<strong>Pembahasan:</strong> ${q.explanation}`;
+            } else {
+                solutionBox.classList.add("hidden");
+            }
+
+            // Navigation buttons state
+            document.getElementById("btn-prev").disabled = currentQuestionIndex === 0;
+            document.getElementById("btn-next").disabled = currentQuestionIndex === filtered.length - 1;
+
+            // Trigger KaTeX Math Render
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.getElementById("q-text"), { delimiters: [{left: '$', right: '$', display: false}] });
+                renderMathInElement(document.getElementById("q-options"), { delimiters: [{left: '$', right: '$', display: false}] });
+                renderMathInElement(document.getElementById("solution-box"), { delimiters: [{left: '$', right: '$', display: false}] });
+            }
+        }
+
+        // Select Answer Handler
+        function selectOption(questionId, optionIdx) {
+            userState.answers[questionId] = optionIdx;
+            saveState();
+            renderQuestionGrid();
+            renderQuestionCard();
+            updateStats();
+        }
+
+        // Navigation Handlers
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestionGrid();
+                renderQuestionCard();
+            }
+        }
+
+        function nextQuestion() {
+            const filtered = getFilteredQuestions();
+            if (currentQuestionIndex < filtered.length - 1) {
+                currentQuestionIndex++;
+                renderQuestionGrid();
+                renderQuestionCard();
+            }
+        }
+
+        // Update Statistics Badge
+        function updateStats() {
+            let correctCount = 0;
+            let answeredCount = 0;
+
+            questionsData.forEach(q => {
+                if (userState.answers.hasOwnProperty(q.id)) {
+                    answeredCount++;
+                    if (userState.answers[q.id] === q.correct) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            const wrongCount = answeredCount - correctCount;
+            const percentage = answeredCount > 0 ? Math.round((correctCount / questionsData.length) * 100) : 0;
+
+            document.getElementById("stat-answered").innerText = `${answeredCount}/40`;
+            document.getElementById("stat-correct").innerText = correctCount;
+            document.getElementById("stat-wrong").innerText = wrongCount;
+            document.getElementById("stat-score").innerText = `${percentage}%`;
+        }
+
+        // Reset Quiz Handler
+        function resetQuiz() {
+            if (confirm("Apakah Anda yakin ingin menghapus semua jawaban dan mengulang kuis dari awal?")) {
+                userState.answers = {};
+                saveState();
+                currentQuestionIndex = 0;
+                renderQuestionGrid();
+                renderQuestionCard();
+                updateStats();
+            }
+        }
+    </script>
+</body>
+</html>
